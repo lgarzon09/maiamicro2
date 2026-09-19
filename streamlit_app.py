@@ -39,9 +39,7 @@ ctrl = get_controller()
 st.title("Clasificador de textos según los ODS")
 st.markdown(
     "Ingresa un **texto libre** y el modelo lo relacionará con uno de los "
-    "**Objetivos de Desarrollo Sostenible** de la Agenda 2030. "
-    "El texto se procesa con el mismo *pipeline* entrenado en el microproyecto: "
-    "`TF-IDF → LSA (TruncatedSVD) → Regresión Logística`."
+    "**Objetivos de Desarrollo Sostenible** de la Agenda 2030."
 )
 
 with st.form(key="form_ods"):
