@@ -2,38 +2,35 @@ import Definitions
 
 import os.path as osp
 
-# Librería de serialización usada para persistir el modelo entrenado.
+# joblib es lo que uso para cargar el modelo que guarde en el notebook
 import joblib
 
 from src.DataPreprocessing import DataPreprocessing
 
 
 class ModelController:
-    """Carga el modelo entrenado y expone la lógica de predicción.
+    """Se encarga de cargar el modelo y hacer las predicciones.
 
-    El modelo es un único Pipeline de scikit-learn que integra:
-        TfidfVectorizer -> TruncatedSVD (LSA) -> LogisticRegression
-    Por eso NO se requieren artefactos separados de escalado ni PCA como en la
-    plantilla original: basta con cargar `model.joblib`.
+    Ojo: aca el modelo es un solo Pipeline que ya trae adentro el TF-IDF, el
+    LSA (TruncatedSVD) y la regresion logistica. Por eso no necesito cargar el
+    scaler ni el pca por separado como en la plantilla original, con el
+    model.joblib alcanza.
     """
 
     def __init__(self):
         print("ModelController.__init__ ->")
-        # Ruta de la carpeta de modelos y del artefacto entrenado.
+        # armo la ruta hasta la carpeta de modelos y el archivo
         self.models_dir = osp.join(Definitions.ROOT_DIR, "resources/models")
         self.model_path = osp.join(self.models_dir, "model.joblib")
 
-        # Cargar el modelo (Pipeline completo).
+        # cargo el pipeline entrenado
         self.model = joblib.load(self.model_path)
 
-        # Clase de preprocesamiento / catálogo de ODS.
+        # esta clase me sirve para validar el texto y para los nombres de los ODS
         self.d_processing = DataPreprocessing()
 
     def predict(self, texto):
-        """Predice el ODS de un texto libre.
-
-        Retorna una tupla (ods, nombre, probabilidad).
-        """
+        """Devuelve (ods, nombre, probabilidad) para un texto."""
         print("ModelController.predict ->")
         texto = self.d_processing.clean(texto)
         ods = int(self.model.predict([texto])[0])
@@ -41,15 +38,13 @@ class ModelController:
         return ods, self.d_processing.get_cat_name(ods), prob
 
     def predict_ranking(self, texto, top=5):
-        """Ranking de los ODS más probables para un texto.
-
-        Retorna una lista de tuplas (ods, nombre, probabilidad) ordenada de
-        mayor a menor probabilidad.
-        """
+        """Igual que predict pero devuelve los ODS ordenados de mayor a menor
+        probabilidad (una lista de tuplas ods, nombre, probabilidad)."""
         print("ModelController.predict_ranking ->")
         texto = self.d_processing.clean(texto)
         probs = self.model.predict_proba([texto])[0]
         clases = self.model.classes_
+        # los ordeno por probabilidad, de mayor a menor
         pares = sorted(zip(clases, probs), key=lambda p: p[1], reverse=True)
         ranking = [
             (int(c), self.d_processing.get_cat_name(c), float(p))

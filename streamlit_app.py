@@ -1,4 +1,4 @@
-# Aseguramos el manejo correcto de rutas del proyecto.
+# esto va primero para que encuentre bien las rutas del proyecto
 import Definitions
 
 import pandas as pd
@@ -6,15 +6,13 @@ import streamlit as st
 
 from src.ModelController import ModelController
 
-### Configuración de la página
-
+# config de la pagina
 st.set_page_config(
     layout="centered", page_title="Clasificador de ODS", page_icon="🌍"
 )
 
-### Instancia del controlador (se cachea para no recargar el modelo)
 
-
+# cargo el modelo una sola vez y lo dejo en cache, si no se recarga cada rato
 @st.cache_resource
 def get_controller():
     return ModelController()
@@ -22,12 +20,12 @@ def get_controller():
 
 ctrl = get_controller()
 
-### Interfaz
+# ------- interfaz -------
 
-st.title("🌍 Clasificador de textos según los ODS")
+st.title("Clasificador de textos según los ODS")
 st.markdown(
     "Ingresa un **texto libre** y el modelo lo relacionará con uno de los "
-    "**Objetivos de Desarrollo Sostenible (ODS)** de la Agenda 2030. "
+    "**Objetivos de Desarrollo Sostenible** de la Agenda 2030. "
     "El texto se procesa con el mismo *pipeline* entrenado en el microproyecto: "
     "`TF-IDF → LSA (TruncatedSVD) → Regresión Logística`."
 )
@@ -41,21 +39,23 @@ with st.form(key="form_ods"):
     submit = st.form_submit_button(label="Clasificar", type="primary")
 
 if submit:
+    # si no escribieron nada, aviso y no hago nada mas
     if not ctrl.d_processing.is_valid(texto):
         st.warning("Por favor ingresa un texto antes de clasificar.")
     else:
         ranking = ctrl.predict_ranking(texto, top=5)
-        ods, nombre, prob = ranking[0]
+        ods, nombre, prob = ranking[0]  # el primero es el mas probable
 
         col1, col2 = st.columns([1, 2])
         with col1:
             st.caption("🗣 Predicción")
             st.metric("ODS", f"{ods}")
         with col2:
-            st.caption("🎯 Resultado")
+            st.caption("Resultado")
             st.success(f"### ODS {ods} — {nombre}")
             st.metric("Confianza del modelo", f"{prob * 100:.1f}%")
 
+        # muestro tambien los 5 mas probables para que se vea el detalle
         st.caption("Top 5 objetivos más probables")
         tabla = pd.DataFrame(
             {

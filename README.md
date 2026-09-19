@@ -1,52 +1,53 @@
-# Clasificador de textos según los ODS 🌍
+# Clasificador de textos por ODS
 
-Aplicación web (Streamlit) del **Microproyecto 2 — Machine Learning no supervisado (MAIA)**.
-Recibe un **texto libre** y lo relaciona con uno de los **Objetivos de Desarrollo
-Sostenible (ODS)** de la Agenda 2030, usando el mismo *pipeline* entrenado en el
-notebook del proyecto:
+App en Streamlit para el Microproyecto 2 de Machine Learning no supervisado (MAIA).
 
-```
-TF-IDF  →  LSA (TruncatedSVD, 100 componentes)  →  Regresión Logística (C=10)
-```
-
-El proyecto sigue la **estructura de la plantilla del curso**, adaptada a un
-problema de clasificación de texto (un único artefacto `model.joblib`, ya que el
-Pipeline integra el preprocesamiento completo; no se requieren `scaler`/`pca`
-por separado).
-
-## Estructura
+La idea es sencilla: uno escribe un texto y la app dice a cuál de los Objetivos
+de Desarrollo Sostenible (ODS) de la Agenda 2030 se parece más. Por dentro usa el
+mismo modelo que entrené en el notebook:
 
 ```
-ODS_Classifier/
-├── Definitions.py                  # ROOT_DIR y rutas del proyecto
-├── configuration.conf
-├── requirements.txt
-├── streamlit_app.py                # Interfaz (archivo principal)
-├── resources/
-│   ├── batch/streamlit.bat         # Lanzador local (Windows)
-│   └── models/model.joblib         # Pipeline entrenado (un solo artefacto)
-└── src/
-    ├── ModelController.py          # Carga del modelo y predicción
-    └── DataPreprocessing.py        # Validación de entrada y catálogo de ODS
+TF-IDF  ->  LSA (TruncatedSVD, 100 componentes)  ->  Regresión Logística (C=10)
 ```
 
-## Ejecutar localmente
+Seguí la estructura de la plantilla del curso, pero adaptada al problema de texto.
+Como el pipeline ya hace todo el preprocesamiento por dentro, me quedó un solo
+`model.joblib` (no necesité guardar el scaler ni el pca aparte). El modelo está
+entrenado con el OSDG Community Dataset (traducido al español) y clasifica los
+ODS del 1 al 16.
+
+## Cómo la corro en mi máquina
 
 ```bash
 pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
 
-## Despliegue en Streamlit Community Cloud
+## Cómo la subí a Streamlit Cloud
 
-1. Sube este proyecto a un repositorio de **GitHub público**.
+1. Subí el proyecto a un repo público de GitHub.
 2. En [share.streamlit.io](https://share.streamlit.io) → **Create app** →
    *Deploy a public app from GitHub*.
-3. **Repository:** tu repo · **Main file path:** `ODS_Classifier/streamlit_app.py`
-   (o `streamlit_app.py` si subes el contenido de esta carpeta a la raíz del repo).
-4. **Advanced settings → Python 3.12** (⚠️ no 3.10: `scikit-learn 1.9` / `numpy 2.5`
-   requieren Python 3.11+).
-5. **Deploy** y copia la URL pública.
+3. Elegí el repo, branch `main` y como archivo principal `streamlit_app.py`.
+4. En **Advanced settings** puse **Python 3.12** (con 3.10 no sirve porque
+   `scikit-learn 1.9` y `numpy 2.5` piden 3.11 o superior).
+5. Deploy.
 
-> ⚠️ Las versiones de `requirements.txt` están fijadas a las mismas con las que se
-> entrenó el modelo, para garantizar que `model.joblib` se cargue sin errores.
+## Estructura
+
+```
+ODS_Classifier/
+├── Definitions.py              # rutas del proyecto
+├── configuration.conf
+├── requirements.txt
+├── streamlit_app.py            # la app (archivo principal)
+├── resources/
+│   ├── batch/streamlit.bat     # para lanzarla en local (Windows)
+│   └── models/model.joblib     # el modelo entrenado
+└── src/
+    ├── ModelController.py      # carga el modelo y predice
+    └── DataPreprocessing.py    # valida el texto y guarda los nombres de los ODS
+```
+
+> Nota: dejé fijas las versiones en `requirements.txt` (las mismas con las que
+> entrené) para que el `model.joblib` cargue sin problemas en el despliegue.

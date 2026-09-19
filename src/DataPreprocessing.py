@@ -1,18 +1,16 @@
-"""Preprocesamiento y catálogo de clases para el clasificador de ODS.
+"""Cositas de apoyo para el clasificador de ODS.
 
-A diferencia de la plantilla original (imágenes de 784 píxeles con escalado y
-PCA aplicados por fuera), en este proyecto TODO el preprocesamiento del texto
-—limpieza, TF-IDF y reducción de dimensionalidad con LSA— vive DENTRO del
-Pipeline de scikit-learn serializado en `model.joblib`. Por eso esta clase no
-transforma el texto: se limita a validar la entrada y a traducir el número de
-ODS a su nombre oficial.
+En la plantilla original aca se hacia el preprocesamiento de las imagenes
+(escalado, PCA, etc). En mi caso todo eso ya lo hace el pipeline por dentro
+(TF-IDF y LSA), asi que esta clase solo la uso para dos cosas: revisar que el
+texto no venga vacio y traducir el numero del ODS a su nombre.
 """
 
 
 class DataPreprocessing:
 
-    # Nombres oficiales de los 17 ODS de la Agenda 2030.
-    # El dataset del proyecto contiene los ODS 1 a 16 (no hay ODS 17).
+    # nombres oficiales de los 17 ODS. En los datos solo aparecen del 1 al 16
+    # (no hay textos del ODS 17), pero los dejo todos por si acaso.
     ODS_NOMBRES = {
         1: "Fin de la pobreza",
         2: "Hambre cero",
@@ -37,19 +35,16 @@ class DataPreprocessing:
         print("DataPreprocessing.__init__ ->")
 
     def clean(self, texto):
-        """Normalización mínima de la entrada del usuario.
-
-        El pipeline ya realiza minúsculas, quitado de acentos y stopwords;
-        aquí solo aseguramos que la entrada sea una cadena no vacía.
-        """
+        # el pipeline ya se encarga de minusculas, acentos y stopwords,
+        # aca solo quito espacios de sobra y me aseguro que sea texto
         if texto is None:
             return ""
         return str(texto).strip()
 
     def is_valid(self, texto):
-        """Valida que el texto ingresado no esté vacío."""
+        # sirve para no dejar clasificar cuando la caja esta vacia
         return len(self.clean(texto)) > 0
 
     def get_cat_name(self, ods):
-        """Devuelve el nombre del ODS a partir de su número."""
+        # me devuelve el nombre del ODS a partir del numero
         return self.ODS_NOMBRES.get(int(ods), "ODS desconocido")
