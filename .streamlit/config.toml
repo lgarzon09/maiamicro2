@@ -1,0 +1,3 @@
+[client]
+# deja la barra de herramientas al minimo (sin boton de deploy ni menu de dev)
+toolbarMode = "minimal"

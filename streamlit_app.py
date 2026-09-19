@@ -11,6 +11,20 @@ st.set_page_config(
     layout="centered", page_title="Clasificador de ODS", page_icon="🌍"
 )
 
+# escondo la barra de arriba, el menu y el footer de streamlit para que se vea mas limpio
+st.markdown(
+    """
+    <style>
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    [data-testid="stToolbar"] {visibility: hidden; display: none;}
+    [data-testid="stDecoration"] {display: none;}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 # cargo el modelo una sola vez y lo dejo en cache, si no se recarga cada rato
 @st.cache_resource
